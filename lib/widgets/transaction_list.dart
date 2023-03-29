@@ -12,7 +12,14 @@ class TransactionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 500,
-      child: ListView.builder(
+      child: transactions.isEmpty?Column(children: [
+        Text("No transaction yet",style: Theme.of(context).textTheme.titleMedium,),
+        SizedBox(height: 50,),
+        Container(
+          height: 400,
+          child: Image.asset("assets/images/waiting.png"),
+        )
+      ],): ListView.builder(
         itemBuilder: (context, index) {
           return Card(
                 child: Row(
@@ -35,8 +42,7 @@ class TransactionList extends StatelessWidget {
                       children: [
                         Text(
                           transactions[index].title,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Text(
                           DateFormat.yMMMd().format(transactions[index].date),
