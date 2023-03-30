@@ -13,30 +13,27 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Expense Planner',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
-        fontFamily: 'Quicksand',
-        textTheme: ThemeData.light().textTheme.copyWith(titleMedium: TextStyle(
-    fontFamily: 'OpenSans',
-    fontSize: 18,
-    fontWeight: FontWeight.bold
-  )),
-        appBarTheme: AppBarTheme(
-  titleTextStyle: TextStyle(
-    fontFamily: 'OpenSans',
-    fontSize: 20,
-    fontWeight: FontWeight.bold
-  )
-)
-        // AppBarTheme(textTheme: ThemeData.light().textTheme.copyWith(titleMedium: TextStyle(fontFamily: 'OpenSans', fontSize: 20, fontWeight: FontWeight.bold))),
-        
-      ),
+          primarySwatch: Colors.purple,
+          fontFamily: 'Quicksand',
+          textTheme: ThemeData.light().textTheme.copyWith(
+              titleMedium: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
+          appBarTheme: AppBarTheme(
+              titleTextStyle: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold))
+          // AppBarTheme(textTheme: ThemeData.light().textTheme.copyWith(titleMedium: TextStyle(fontFamily: 'OpenSans', fontSize: 20, fontWeight: FontWeight.bold))),
+
+          ),
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -56,27 +53,42 @@ class _MyHomePageState extends State<MyHomePage> {
     //   date: DateTime.now(),
     // )
   ];
-  List<Transaction> get _recentTransactions{
+  List<Transaction> get _recentTransactions {
     return _userTransaction.where((tx) {
-      return tx.date.isAfter(DateTime.now().subtract(Duration(days: 7),),);
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
     }).toList();
   }
-  void _addNewTransaction(String txTitle, double txAmount)
-  {
-    final newTx=Transaction(id: DateTime.now().toString(), title: txTitle, amount: txAmount, date: DateTime.now());
+
+  void _addNewTransaction(
+      String txTitle, double txAmount, DateTime choosenDate) {
+    final newTx = Transaction(
+        id: DateTime.now().toString(),
+        title: txTitle,
+        amount: txAmount,
+        date: choosenDate);
 
     setState(() {
       _userTransaction.add(newTx);
     });
-
   }
 
+  void _startAddNewTransaction(BuildContext ctx) {
+    showModalBottomSheet(
+        context: ctx,
+        builder: (_) {
+          return NewTransaction(_addNewTransaction);
+        });
+  }
 
-
-  
-  void _startAddNewTransaction(BuildContext ctx){
-    showModalBottomSheet(context: ctx, builder: (_){
-      return NewTransaction(_addNewTransaction);
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransaction.removeWhere((tx) {
+        return tx.id == id;
+      });
     });
   }
 
@@ -85,17 +97,26 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Expense Planner'),
-        actions: [IconButton(onPressed: () => _startAddNewTransaction(context), icon: Icon(Icons.add),),],
+        actions: [
+          IconButton(
+            onPressed: () => _startAddNewTransaction(context),
+            icon: Icon(Icons.add),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Chart(_recentTransactions),
-            TransactionList(_userTransaction),
-            
-          ],),
+            TransactionList(_userTransaction, _deleteTransaction),
+          ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(onPressed: () => _startAddNewTransaction(context),child: Icon(Icons.add),),);
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _startAddNewTransaction(context),
+        child: Icon(Icons.add),
+      ),
+    );
   }
 }
